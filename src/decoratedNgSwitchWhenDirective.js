@@ -36,7 +36,10 @@
                 event, current, previous) {
                 var routeParamChanged = false;
 
-                var purgeScopeOnRouteParams = current.purgeScopeOnRouteParams;
+                var currentAction = scope.$_currentAction();
+
+                var purgeScopeOnRouteParams =
+                    current.paramsPerAction[currentAction];
                 if (!purgeScopeOnRouteParams) {
                     return;
                 }
@@ -69,7 +72,7 @@
     };
 
 
-    angular.module('jdNestedViews', [])
+    angular.module('jdNestedViews.decoratedNgSwitchWhenDirective', [])
         .config(['$routeProvider', '$provide', function($routeProvider, $provide) {
 
             $provide.decorator('ngSwitchWhenDirective', ['$delegate', function($delegate) {

@@ -5,18 +5,26 @@
         this.$routeProvider = $routeProvider;
 
         this.pathPerAction = {};
-        this.isAbstractPerAction = {};
     };
 
 
     ActionRouteProvider.prototype = (function() {
 
+        /**
+         * @param {string|{url: string}} routeOrRelativeUrl
+         * @returns {string}
+         */
         var determineRelativeUrl = function(routeOrRelativeUrl) {
             return (typeof routeOrRelativeUrl === 'string') ? routeOrRelativeUrl : routeOrRelativeUrl.url;
         };
 
-        var determineAndStoreActionPath = function(
-            pathPerAction, action, relativeUrl) {
+        /**
+         * @param {Object.<string>} pathPerAction
+         * @param {string} action
+         * @param {string} relativeUrl
+         * @returns {string}
+         */
+        var determineAndStoreActionPath = function(pathPerAction, action, relativeUrl) {
             var lastDotIndex = action.lastIndexOf('.');
 
             var path;
@@ -39,6 +47,38 @@
             return path;
         };
 
+        /**
+         * @param {Object.<Array.<string>>} paramsPerAction
+         * @param {string} action
+         * @param {Object.<string>} pathPerAction
+         */
+        var initParamsPerAction = function(paramsPerAction, action, pathPerAction) {
+            var previousAction = null;
+
+            var subActions = action.split('.');
+
+            angular.forEach(subActions, function(subAction) {
+                var currentAction = previousAction ? previousAction + '.' + subAction : subAction;
+
+                var paramsForCurrentAction = [];
+
+                var path = pathPerAction[currentAction];
+                if (path) {
+                    angular.forEach(path.split(/\W/), function(param) {
+                        if (!(new RegExp("^\\d+$").test(param)) &&
+                            param && (new RegExp("(^|[^\\\\]):" + param +
+                            "(\\W|$)").test(path))) {
+                            paramsForCurrentAction.push(param);
+                        }
+                    });
+
+                    paramsPerAction[currentAction] = paramsForCurrentAction;
+                }
+
+                previousAction = currentAction;
+            });
+        };
+
 
         return {
             constructor: ActionRouteProvider,
@@ -55,11 +95,9 @@
              * @returns {ActionRouteConfigurer}
              */
             whenAction: function(action, routeOrRelativeUrl) {
-                console.log('<-- ' + angular.toJson(routeOrRelativeUrl));
                 var relativeUrl = determineRelativeUrl(routeOrRelativeUrl);
 
-                var path = determineAndStoreActionPath(
-                    this.pathPerAction, action, relativeUrl);
+                var path = determineAndStoreActionPath(this.pathPerAction, action, relativeUrl);
 
                 var route = (typeof routeOrRelativeUrl === 'object') ? angular.copy(routeOrRelativeUrl) : {};
                 if (typeof routeOrRelativeUrl === 'object') {
@@ -68,22 +106,8 @@
 
                 route.action = action;
 
-                route.purgeScopeOnRouteParams = [];
-
-                //TODO: only add relevant routeParams to purgeScopeOnRouteParams
-                //  ; this should be the "abstract" parent actions(s) + the
-                //  relativeUrl
-
-                angular.forEach(path.split(/\W/), function(param) {
-                    if (!(new RegExp("^\\d+$").test(param)) &&
-                        param && (new RegExp("(^|[^\\\\]):" + param +
-                        "(\\W|$)").test(path))) {
-                        route.purgeScopeOnRouteParams.push(param);
-                    }
-                });
-
-
-                console.log('' + path + ' -> ' + angular.toJson(route));
+                route.paramsPerAction = {};
+                initParamsPerAction(route.paramsPerAction, action, this.pathPerAction);
 
                 this.$routeProvider.when(path, route);
 

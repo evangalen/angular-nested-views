@@ -13,6 +13,7 @@ module.exports = function(config) {
     files: [
       'bower_components/angular/angular.js',
       'bower_components/angular-mocks/angular-mocks.js',
+      'bower_components/lodash/lodash.js',
       'src/**/*.js',
       'test/**/*.js'
     ],
@@ -29,7 +30,7 @@ module.exports = function(config) {
 
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
+    autoWatch: true,
 
 
     // Start these browsers, currently available:
@@ -45,6 +46,11 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: false
+    singleRun: false,
+
+
+    preprocessors: {
+      'src/**/*.js': ['coverage']
+    }
   });
 };
