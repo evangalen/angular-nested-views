@@ -23,8 +23,7 @@
                 return result;
             };
 
-            var wrappedCloneLinkingFn = function wrappedCloneLinkingFn(
-                clonedElement, scope) {
+            var wrappedCloneLinkingFn = function wrappedCloneLinkingFn(clonedElement, scope) {
                 intermediateElement.append(clonedElement);
                 cloneLinkingFn(intermediateElement, scope);
             };
@@ -38,27 +37,22 @@
 
                 var currentAction = scope.$_currentAction();
 
-                var purgeScopeOnRouteParams =
-                    current.paramsPerAction[currentAction];
+                var purgeScopeOnRouteParams = current.paramsPerAction[currentAction];
                 if (!purgeScopeOnRouteParams) {
                     return;
                 }
 
-                var purgeScopeOnRouteParamsLength =
-                    purgeScopeOnRouteParams.length;
+                var purgeScopeOnRouteParamsLength = purgeScopeOnRouteParams.length;
 
-                for (var i = 0; i < purgeScopeOnRouteParamsLength &&
-                    !routeParamChanged; i++) {
-                    routeParamChanged = isRouteParamChanged(
-                        current, previous, purgeScopeOnRouteParams[i]);
+                for (var i = 0; i < purgeScopeOnRouteParamsLength && !routeParamChanged; i++) {
+                    routeParamChanged = isRouteParamChanged(current, previous, purgeScopeOnRouteParams[i]);
                 }
 
                 if (routeParamChanged) {
                     intermediateChildScope.$destroy();
                     intermediateElement.children().remove();
 
-                    intermediateChildScope =
-                        createIntermediateChildScopeAndElement();
+                    intermediateChildScope = createIntermediateChildScopeAndElement();
                 }
             });
 
@@ -66,13 +60,12 @@
     };
 
     var isRouteParamChanged = function(currentRoute, previousRoute, name) {
-        return currentRoute.params[name] &&
-            previousRoute.params[name] &&
-            currentRoute.params[name] !== previousRoute.params[name];
+        return currentRoute.params[name] && previousRoute.params[name] &&
+                currentRoute.params[name] !== previousRoute.params[name];
     };
 
 
-    angular.module('jdNestedViews.decoratedNgSwitchWhenDirective', [])
+    angular.module('angularNestedViews.decoratedNgSwitchWhenDirective', [])
         .config(['$routeProvider', '$provide', function($routeProvider, $provide) {
 
             $provide.decorator('ngSwitchWhenDirective', ['$delegate', function($delegate) {

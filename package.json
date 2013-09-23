@@ -1,6 +1,6 @@
 {
-    "name": "jd-nested-views",
-    "version": "0.1.0",
+    "name": "angular-nested-views",
+    "version": "0.1.0-snapshot",
     "devDependencies": {
         "grunt": "~0.4.1",
         "grunt-contrib-concat": "~0.3.0",

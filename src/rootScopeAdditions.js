@@ -4,7 +4,7 @@
     /** const */
     var subActionIndexProperty = '$$_subActionIndex';
 
-    angular.module('jdNestedViews.rootScopeAdditions', [])
+    angular.module('angularNestedViews.rootScopeAdditions', [])
         .run(['$rootScope', '$route', function($rootScope, $route) {
 
             $rootScope.$$_subActions = [];
@@ -18,8 +18,8 @@
                     index = $scope[subActionIndexProperty];
                 } else {
                     index = $scope.$parent &&
-                        angular.isDefined($scope.$parent[subActionIndexProperty])
-                                ? $scope.$parent[subActionIndexProperty] + 1 : 0;
+                        angular.isDefined($scope.$parent[subActionIndexProperty]) ?
+                                $scope.$parent[subActionIndexProperty] + 1 : 0;
 
                     $scope[subActionIndexProperty] = index;
                 }
@@ -33,7 +33,7 @@
                 var subActionIndex = $scope[subActionIndexProperty];
 
                 if (typeof subActionIndex !== 'number') {
-                    throw 'No current sub action found';
+                    throw 'No current action found';
                 }
 
                 return $rootScope.$$_subActions
@@ -42,7 +42,7 @@
             };
 
 
-            $rootScope.$on('$routeChangeSuccess', function(event) {
+            $rootScope.$on('$routeChangeSuccess', function() {
                 if (!$route.current) {
                     return;
                 }

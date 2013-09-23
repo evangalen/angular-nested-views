@@ -1,11 +1,11 @@
 ;(function() {
     'use strict';
 
-    angular.module('jdNestedViews',
+    angular.module('angularNestedViews',
         [
-            'jdNestedViews.rootScopeAdditions',
-            'jdNestedViews.decoratedNgSwitchWhenDirective',
-            'jdNestedViews.actionRoute'
+            'angularNestedViews.rootScopeAdditions',
+            'angularNestedViews.decoratedNgSwitchWhenDirective',
+            'angularNestedViews.actionRoute'
         ]);
 
 }());

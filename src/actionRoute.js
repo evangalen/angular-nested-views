@@ -125,7 +125,7 @@
         };
     }());
 
-    angular.module('jdNestedViews.actionRoute', [])
+    angular.module('angularNestedViews.actionRoute', [])
         .provider('$actionRoute', ['$routeProvider', function($routeProvider) {
             return new ActionRouteProvider($routeProvider);
         }]);
