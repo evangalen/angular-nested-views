@@ -135,6 +135,12 @@ describe('decoratedNgSwitchWhenDirective', function() {
                     $scope.$digest();
                 }));
 
+                it('should do nothing when current route has no paramsPerAction property', function() {
+                    delete $route.current.paramsPerAction;
+
+                    broadcastRouteChangeSuccessAndAssertNothingChanged();
+                });
+
                 it('should do nothing when current route has no route params', function() {
                     broadcastRouteChangeSuccessAndAssertNothingChanged();
                 });
