@@ -34,7 +34,7 @@ describe('decoratedNgSwitchWhenDirective', function() {
             }
 
             return result;
-        }
+        };
     }));
 
     var scopeInfo = function(scope) {
