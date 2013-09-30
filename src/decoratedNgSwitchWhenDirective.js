@@ -1,6 +1,8 @@
 ;(function() {
     'use strict';
 
+    var ngSwitchWhenCompileAlreadyWrapped = false;
+
     var wrapNgSwitchWhenCompile = function(compileFn) {
         return function wrappedNgSwitchWhenCompile(element, attrs, transclude) {
             var wrappedTransclude = wrapNgSwitchWhenCompileTransclude(transclude);
@@ -28,11 +30,9 @@
                 cloneLinkingFn(intermediateElement, scope);
             };
 
-
             intermediateChildScope = createIntermediateChildScopeAndElement();
 
-            scope.$on('$routeChangeSuccess', function(
-                event, current, previous) {
+            scope.$on('$routeChangeSuccess', function(event, current, previous) {
                 var routeParamChanged = false;
 
                 var currentAction = scope.$_currentAction();
@@ -55,7 +55,6 @@
                     intermediateChildScope = createIntermediateChildScopeAndElement();
                 }
             });
-
         };
     };
 
@@ -70,8 +69,12 @@
 
             $provide.decorator('ngSwitchWhenDirective', ['$delegate', function($delegate) {
                 var ngSwitchWhenDefinition = $delegate[0];
-                ngSwitchWhenDefinition.compile =
-                    wrapNgSwitchWhenCompile(ngSwitchWhenDefinition.compile);
+
+                if (!ngSwitchWhenCompileAlreadyWrapped) {
+                    ngSwitchWhenDefinition.compile = wrapNgSwitchWhenCompile(ngSwitchWhenDefinition.compile);
+
+                    ngSwitchWhenCompileAlreadyWrapped = true;
+                }
 
                 return $delegate;
             }]);

@@ -3,11 +3,73 @@ describe('decoratedNgSwitchWhenDirective', function() {
 
     beforeEach(module('angularNestedViews.decoratedNgSwitchWhenDirective'));
 
+    var $log;
+
+    var $rootScope;
     var $scope;
 
-    it('ngSwitch still works as it should be', inject(function($rootScope, $compile) {
-        $scope = $rootScope.$new();
+    beforeEach(inject(function(_$log_, _$rootScope_) {
+        $log = _$log_;
 
+        $rootScope = _$rootScope_;
+        $log.log('root scope: {$id: ' + $rootScope.$id + '}');
+
+        $scope = $rootScope.$new();
+        $log.log('created scope for testing: ' + scopeInfo($scope));
+
+        var $newOriginal = $rootScope.$new;
+        $rootScope.$new = function(isolate) {
+            var result = $newOriginal.call(this, isolate);
+
+            $log.log('scope created using $new: ' + scopeInfo(result));
+            return result;
+        };
+
+        var $onOriginal = $rootScope.$on;
+        $rootScope.$on = function() {
+            var result = $onOriginal.apply(this, arguments);
+
+            if (arguments[0] === '$routeChangeSuccess') {
+                $log.log('Registered $on("$routeChangeSuccess") of scope with $id = ' + this.$id);
+            }
+
+            return result;
+        }
+    }));
+
+    var scopeInfo = function(scope) {
+        var result = '$id = ' + scope.$id + ", parentScopes = ";
+
+        result += scope.$parent ? '[' : 'null';
+
+        var currentScope = scope.$parent;
+        while (currentScope) {
+            if (currentScope !== scope.$parent) {
+                result += ', ';
+            }
+
+            result += "{$id: '" + currentScope.$id + "'}";
+
+            currentScope = currentScope.$parent;
+        }
+
+        if ($scope.$parent) {
+            result += ']';
+        }
+
+        return result;
+    };
+
+    afterEach(function() {
+        $scope.$destroy();
+
+        delete $rootScope.$new;
+        delete $rootScope.$on;
+
+        expect($rootScope.$$childHead).toBeNull();
+    });
+
+    it('ngSwitch still works as it should be', inject(function($compile) {
         $scope.model = true;
 
         var $element = $compile('' +
@@ -45,15 +107,10 @@ describe('decoratedNgSwitchWhenDirective', function() {
 
 
     describe('scope', function() {
-        var $rootScope;
-        var scope;
         var $route;
 
-        beforeEach(inject(function(_$rootScope_, _$route_) {
-            $rootScope = _$rootScope_;
+        beforeEach(inject(function(_$route_) {
             $rootScope.$_currentAction = angular.noop;
-
-            scope = $rootScope.$new();
 
             $route = _$route_;
         }));
@@ -69,13 +126,13 @@ describe('decoratedNgSwitchWhenDirective', function() {
 
                     $route.current = {paramsPerAction: {}};
 
-                    scope.model = true;
+                    $scope.model = true;
 
                     $element = $compile('' +
                         '<div ng-switch="model">' +
                         '    <div ng-switch-when="true">true</div>' +
-                        '</div>')(scope);
-                    scope.$digest();
+                        '</div>')($scope);
+                    $scope.$digest();
                 }));
 
                 it('should do nothing when current route has no route params', function() {
@@ -92,13 +149,22 @@ describe('decoratedNgSwitchWhenDirective', function() {
                 });
 
                 var broadcastRouteChangeSuccessAndAssertNothingChanged = function() {
-                    var selectedElement = $element.find('span').eq(0);
-                    var selectedElementScope = selectedElement.scope();
-                    var selectedElementContext = selectedElement.context;
+                    var intermediateElement = $element.find('span').eq(0);
 
-                    scope.$broadcast('$routeChangeSuccess', $route.current, $route.previous);
+                    expect(intermediateElement.children().length).toBe(1);
+                    var previousIntermediateChildContext = intermediateElement.children()[0];
+                    var previousIntermediateChildScope = intermediateElement.children().eq(0).scope();
 
-                    //TODO: add expectations
+                    $scope.$broadcast('$routeChangeSuccess', $route.current, $route.previous);
+
+                    expect(previousIntermediateChildScope.$$destroyed).toBe(false);
+
+                    expect(intermediateElement.children().length).toBe(1);
+                    var intermediateChildContext = intermediateElement.children()[0];
+                    var intermediateChildScope = intermediateElement.children().eq(0).scope();
+
+                    expect(intermediateChildContext).toBe(previousIntermediateChildContext);
+                    expect(intermediateChildScope).toBe(previousIntermediateChildScope);
                 };
 
 
@@ -108,13 +174,25 @@ describe('decoratedNgSwitchWhenDirective', function() {
 
                     $route.previous = {params: {aRouteParam: '2'}};
 
-                    var selectedElement = $element.find('span').eq(0);
-                    var selectedElementScope = selectedElement.scope();
-                    var selectedElementContext = selectedElement.context;
+                    var intermediateElement = $element.find('span').eq(0);
 
-                    scope.$broadcast('$routeChangeSuccess', $route.current, $route.previous);
+                    expect(intermediateElement.children().length).toBe(1);
+                    var previousIntermediateChildContext = intermediateElement.children()[0];
+                    var previousIntermediateChildScope = intermediateElement.children().eq(0).scope();
 
-                    //TODO: add expectations
+                    $scope.$broadcast('$routeChangeSuccess', $route.current, $route.previous);
+
+                    expect(previousIntermediateChildScope.$$destroyed).toBe(true);
+
+                    expect(intermediateElement.children().length).toBe(1);
+                    var intermediateChildContext = intermediateElement.children()[0];
+                    var intermediateChildScope = intermediateElement.children().eq(0).scope();
+
+                    expect(intermediateChildContext).toBeTruthy();
+                    expect(intermediateChildContext).not.toBe(previousIntermediateChildContext);
+
+                    expect(intermediateChildScope).toBeTruthy();
+                    expect(intermediateChildScope).not.toBe(previousIntermediateChildScope);
                 });
             });
         });
