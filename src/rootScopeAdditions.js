@@ -9,6 +9,8 @@
 
             $rootScope.$$_subActions = [];
 
+            $rootScope.$$_currentAction = null;
+
             $rootScope.nextSubAction = function() {
                 var $scope = this;
 
@@ -25,6 +27,10 @@
                 }
 
                 return $rootScope.$$_subActions[index];
+            };
+
+            $rootScope.currentAction = function() {
+                return $rootScope.$$_currentAction;
             };
 
             $rootScope.$_currentAction = function() {
@@ -52,6 +58,7 @@
                     return;
                 }
 
+                $rootScope.$$_currentAction = action;
                 $rootScope.$$_subActions = action.split('.');
             });
         }]);

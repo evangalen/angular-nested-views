@@ -64,7 +64,14 @@
     };
 
 
-    angular.module('angularNestedViews.decoratedNgSwitchWhenDirective', [])
+    var requiredModules = [];
+
+    if (angular.version.major > 1 || (angular.version.major === 1 && angular.version.minor >= 2)) {
+        requiredModules.push('ngRoute');
+    }
+
+
+    angular.module('angularNestedViews.decoratedNgSwitchWhenDirective', requiredModules)
         .config(['$routeProvider', '$provide', function($routeProvider, $provide) {
 
             $provide.decorator('ngSwitchWhenDirective', ['$delegate', function($delegate) {

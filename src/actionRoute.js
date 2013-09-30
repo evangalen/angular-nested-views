@@ -125,7 +125,13 @@
         };
     }());
 
-    angular.module('angularNestedViews.actionRoute', [])
+    var requiredModules = [];
+
+    if (angular.version.major > 1 || (angular.version.major === 1 && angular.version.minor >= 2)) {
+        requiredModules.push('ngRoute');
+    }
+
+    angular.module('angularNestedViews.actionRoute', requiredModules)
         .provider('$actionRoute', ['$routeProvider', function($routeProvider) {
             return new ActionRouteProvider($routeProvider);
         }]);
