@@ -170,7 +170,7 @@
 
                 var currentAction = scope.$_currentAction();
 
-                var purgeScopeOnRouteParams = current.paramsPerAction[currentAction];
+                var purgeScopeOnRouteParams = current.paramsPerAction ? current.paramsPerAction[currentAction] : null;
                 if (!purgeScopeOnRouteParams) {
                     return;
                 }
