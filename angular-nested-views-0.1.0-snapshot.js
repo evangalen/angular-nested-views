@@ -125,7 +125,13 @@
         };
     }());
 
-    angular.module('angularNestedViews.actionRoute', [])
+    var requiredModules = [];
+
+    if (angular.version.major > 1 || (angular.version.major === 1 && angular.version.minor >= 2)) {
+        requiredModules.push('ngRoute');
+    }
+
+    angular.module('angularNestedViews.actionRoute', requiredModules)
         .provider('$actionRoute', ['$routeProvider', function($routeProvider) {
             return new ActionRouteProvider($routeProvider);
         }]);
@@ -197,7 +203,14 @@
     };
 
 
-    angular.module('angularNestedViews.decoratedNgSwitchWhenDirective', [])
+    var requiredModules = [];
+
+    if (angular.version.major > 1 || (angular.version.major === 1 && angular.version.minor >= 2)) {
+        requiredModules.push('ngRoute');
+    }
+
+
+    angular.module('angularNestedViews.decoratedNgSwitchWhenDirective', requiredModules)
         .config(['$routeProvider', '$provide', function($routeProvider, $provide) {
 
             $provide.decorator('ngSwitchWhenDirective', ['$delegate', function($delegate) {
@@ -235,6 +248,8 @@
 
             $rootScope.$$_subActions = [];
 
+            $rootScope.$$_currentAction = null;
+
             $rootScope.nextSubAction = function() {
                 var $scope = this;
 
@@ -251,6 +266,10 @@
                 }
 
                 return $rootScope.$$_subActions[index];
+            };
+
+            $rootScope.currentAction = function() {
+                return $rootScope.$$_currentAction;
             };
 
             $rootScope.$_currentAction = function() {
@@ -278,6 +297,7 @@
                     return;
                 }
 
+                $rootScope.$$_currentAction = action;
                 $rootScope.$$_subActions = action.split('.');
             });
         }]);
