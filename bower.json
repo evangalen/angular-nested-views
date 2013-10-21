@@ -1,6 +1,6 @@
 {
-  "name": "angularNestedViews",
-  "version": "0.1.0",
+  "name": "angular-nested-views",
+  "version": "0.1.0-snapshot",
   "main": "dist/angular-nested-views.js",
   "dependencies": {
     "angular": "~1.0.8",
